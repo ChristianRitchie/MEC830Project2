@@ -40,21 +40,21 @@ Servo servo;
 
 void setup() {
   Serial.begin(9600);
+  
+  //joystick
+  pinMode(val_SW, INPUT_PULLUP);
 
+  //dcmotor
+  pinMode(Enable12, OUTPUT);
+  pinMode(Driver1A, OUTPUT);
+  pinMode(Driver2A, OUTPUT);
+  
   //servo
   servo.attach(my_servo);
   
   //ultrasonic sensor
   pinMode(TRIG, OUTPUT);
   pinMode(ECHO, INPUT);
-  
-  //joystick
-  pinMode(val_SW, INPUT_PULLUP);
-  
-  //dcmotor
-  pinMode(Enable12, OUTPUT);
-  pinMode(Driver1A, OUTPUT);
-  pinMode(Driver2A, OUTPUT);
 
   servo.write(neutral);
   
@@ -76,7 +76,7 @@ void loop() {
       {
         servo.write(left-20); //turn left
       }
-    else if (analogRead(val_y) > 900)
+    else if (analogRead(val_y) < 100)
       {
         servo.write(right+20); //turn right
       }
@@ -85,7 +85,7 @@ void loop() {
       {
         motorCtrl (255, false);
       }
-    else if (analogRead(val_y) > 900)
+    else if (analogRead(val_x) > 900)
       {
         motorCtrl (255, true);
       }
@@ -93,6 +93,11 @@ void loop() {
       {
         motorCtrl (0, false);
       }
+    
+    if (!digitalRead(val_SW))
+    {
+        mode = 1;
+    }
 
  }
   //Task2 (mode 1)
@@ -116,8 +121,83 @@ void loop() {
 
     servo.write(neutral);
     delay(50);
-    motorCtrl (0,false); 
+    motorCtrl (120,false); 
+        delay(100);
+
+       motorCtrl (0,false); 
+           delay(1000);
+
+
+      while (true)
+      {
+        if (!digitalRead(val_SW))
+        {
+          mode = 3;
+          break;
+        }
+      }
  }
+
+
+   //Task4 (mode 3)
+
+ while (mode ==3)
+ {
+    servo.write(neutral);
+    motorCtrl (0, false);
+    
+    Serial.println("Mode 3 initiated");
+    delay(2000);
+
+    motorCtrl (255, false);
+    delay(1000);
+
+    servo.write(right);
+    delay(2000);
+
+    servo.write(neutral);
+    delay(500);
+    motorCtrl (0,false); 
+
+    motorCtrl (255, false);
+    delay(1000);
+
+    servo.write(right);
+    delay(2000);
+
+    servo.write(neutral);
+    delay(500);
+    motorCtrl (0,false); 
+
+    motorCtrl (255, false);
+    delay(1000);
+
+    servo.write(right);
+    delay(2000);
+
+    servo.write(neutral);
+    delay(500);
+    motorCtrl (0,false); 
+
+    motorCtrl (255, false);
+    delay(2000);
+
+    servo.write(neutral);
+    delay(50);
+    motorCtrl (0,false); 
+
+      while (true)
+      {
+        if (!digitalRead(val_SW))
+        {
+          mode = 2;
+          break;
+        }
+      }
+ }
+
+ 
+
   //Task 3 (mode 2)
  if (mode == 2)
  {
@@ -151,6 +231,8 @@ void loop() {
     distance = 168 - (distance+40);
     delay((distance+38)/0.16);
     motorCtrl(0, false);
+
+    mode = 0;
  }   
              }
 void motorCtrl(byte speed, bool dir){
